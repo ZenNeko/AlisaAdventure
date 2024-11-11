@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Vector2 MovementSpeed = new Vector2(100.0f, 100.0f);
+    public float MovementSpeed = 100f;
     private new Rigidbody2D rigidbody2D;
-    private Vector2 inputVector = new Vector2(0.0f, 0.0f);
+    private Vector2 inputVector;
+    
+    // mouse pos
+    private Vector2 mousePos;
+    public Camera cam;
 
     void Awake()
     {
-        rigidbody2D = gameObject.AddComponent<Rigidbody2D>();
+        rigidbody2D = gameObject.GetComponent<Rigidbody2D>();
 
         rigidbody2D.angularDrag = 0.0f;
         rigidbody2D.gravityScale = 0.0f;
@@ -18,11 +22,19 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        inputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        inputVector.x = Input.GetAxisRaw("Horizontal");
+        inputVector.y = Input.GetAxisRaw("Vertical");
+        
+
+        mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
     }
 
     void FixedUpdate()
     {
-        rigidbody2D.MovePosition(rigidbody2D.position + (inputVector * MovementSpeed * Time.fixedDeltaTime));
+        rigidbody2D.MovePosition(rigidbody2D.position + inputVector * MovementSpeed * Time.fixedDeltaTime);
+
+        Vector2 lookDir = mousePos - rigidbody2D.position;
+        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
+        rigidbody2D.rotation = angle;
     }
 }
